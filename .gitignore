@@ -43,3 +43,5 @@ tests/e2e/screenshots/
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+e2e-screenshots
