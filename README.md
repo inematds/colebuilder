@@ -1,6 +1,13 @@
 # Link-in-Bio Page Builder
 
+![E2E Self-Healing AI Coding Framework](public/e2e-self-healing.png)
+
 A full-stack link-in-bio page builder where users can create a personalized page with links, headers, and dividers — similar to Linktree. Built with Next.js 15, React 19, and Neon Postgres.
+
+## Documentation
+
+- [Sobre o Projeto](public/sobre.html) — Visao geral completa da aplicacao, stack, banco de dados e API
+- [Self-Healing AI Workflow](public/ia-validacao.html) — Como o sistema de auto-validacao com IA funciona
 
 ## Features
 
