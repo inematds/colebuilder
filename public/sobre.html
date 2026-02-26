@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Colebuilder — Link-in-Bio Page Builder</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f0f13;
+      --bg2: #16161d;
+      --bg3: #1e1e28;
+      --border: #2a2a38;
+      --text: #e8e8f0;
+      --muted: #8888aa;
+      --accent: #7c6af7;
+      --accent2: #a78bfa;
+      --green: #34d399;
+      --yellow: #fbbf24;
+      --blue: #60a5fa;
+      --pink: #f472b6;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+    }
+
+    /* ─── NAV ─────────────────────────────────────────── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(15,15,19,0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 60px;
+    }
+
+    .nav-logo {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--accent2);
+      text-decoration: none;
+      letter-spacing: -0.5px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 1.5rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover { color: var(--text); }
+
+    /* ─── HERO ────────────────────────────────────────── */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 4rem 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      width: 700px;
+      height: 700px;
+      background: radial-gradient(circle, rgba(124,106,247,0.15) 0%, transparent 70%);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: rgba(124,106,247,0.15);
+      border: 1px solid rgba(124,106,247,0.35);
+      color: var(--accent2);
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 0.3rem 0.9rem;
+      border-radius: 999px;
+      margin-bottom: 1.5rem;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .hero h1 {
+      font-size: clamp(2.4rem, 6vw, 4.5rem);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -1.5px;
+      margin-bottom: 1.2rem;
+    }
+
+    .gradient-text {
+      background: linear-gradient(135deg, var(--accent), var(--pink), var(--blue));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero p {
+      font-size: clamp(1rem, 2vw, 1.25rem);
+      color: var(--muted);
+      max-width: 600px;
+      margin-bottom: 2.5rem;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .btn {
+      padding: 0.75rem 1.8rem;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s;
+      border: none;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .btn-primary:hover { background: var(--accent2); transform: translateY(-2px); }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-ghost:hover { border-color: var(--accent); color: var(--accent2); }
+
+    /* ─── SECTION ─────────────────────────────────────── */
+    section {
+      padding: 5rem 2rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+
+    .section-title {
+      font-size: clamp(1.8rem, 3vw, 2.6rem);
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      margin-bottom: 1rem;
+    }
+
+    .section-sub {
+      color: var(--muted);
+      font-size: 1.05rem;
+      max-width: 620px;
+      margin-bottom: 3rem;
+    }
+
+    /* ─── FASES ───────────────────────────────────────── */
+    .phases {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.2rem;
+    }
+
+    .phase-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.6rem;
+      position: relative;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+
+    .phase-card:hover { border-color: var(--accent); transform: translateY(-4px); }
+
+    .phase-status {
+      position: absolute;
+      top: 1.2rem;
+      right: 1.2rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.2rem 0.7rem;
+      border-radius: 999px;
+    }
+
+    .status-done { background: rgba(52,211,153,0.15); color: var(--green); }
+    .status-planned { background: rgba(251,191,36,0.15); color: var(--yellow); }
+
+    .phase-num {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 0.5rem;
+    }
+
+    .phase-card h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 0.7rem;
+    }
+
+    .phase-card p { color: var(--muted); font-size: 0.9rem; }
+
+    .phase-card ul {
+      margin-top: 0.8rem;
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .phase-card ul li {
+      font-size: 0.85rem;
+      color: var(--muted);
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+
+    .phase-card ul li::before {
+      content: '›';
+      color: var(--accent);
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    /* ─── STACK ───────────────────────────────────────── */
+    .stack-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+
+    .stack-item {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.2rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.8rem;
+      transition: border-color 0.2s;
+    }
+
+    .stack-item:hover { border-color: var(--accent); }
+
+    .stack-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+
+    .stack-item h4 {
+      font-size: 0.9rem;
+      font-weight: 700;
+      margin-bottom: 0.2rem;
+    }
+
+    .stack-item p {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    /* ─── BANCO DE DADOS ──────────────────────────────── */
+    .db-tables {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.2rem;
+    }
+
+    .db-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .db-header {
+      background: var(--bg3);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 1.4rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .db-header span { font-size: 1rem; }
+    .db-header h3 { font-size: 0.95rem; font-weight: 700; }
+
+    .db-body { padding: 1rem 1.4rem; }
+
+    .db-field {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.4rem 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.85rem;
+    }
+
+    .db-field:last-child { border-bottom: none; }
+
+    .db-field .field-name { color: var(--text); font-family: monospace; }
+    .db-field .field-type {
+      font-size: 0.75rem;
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      background: rgba(124,106,247,0.15);
+      color: var(--accent2);
+      font-family: monospace;
+    }
+
+    /* ─── API ─────────────────────────────────────────── */
+    .api-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+    }
+
+    .api-table th {
+      text-align: left;
+      padding: 0.7rem 1rem;
+      border-bottom: 2px solid var(--border);
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .api-table td {
+      padding: 0.7rem 1rem;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    .api-table tr:last-child td { border-bottom: none; }
+    .api-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+    .method {
+      display: inline-block;
+      font-family: monospace;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 0.15rem 0.5rem;
+      border-radius: 5px;
+    }
+
+    .method-get { background: rgba(52,211,153,0.15); color: var(--green); }
+    .method-post { background: rgba(96,165,250,0.15); color: var(--blue); }
+    .method-put { background: rgba(251,191,36,0.15); color: var(--yellow); }
+    .method-delete { background: rgba(244,114,182,0.15); color: var(--pink); }
+
+    .endpoint { font-family: monospace; color: var(--accent2); }
+
+    .auth-badge {
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+    }
+
+    .auth-yes { background: rgba(52,211,153,0.15); color: var(--green); }
+    .auth-no { background: rgba(136,136,170,0.15); color: var(--muted); }
+
+    /* ─── SCRIPTS ─────────────────────────────────────── */
+    .scripts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.2rem;
+    }
+
+    .scripts-group {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .scripts-group-header {
+      background: var(--bg3);
+      border-bottom: 1px solid var(--border);
+      padding: 0.8rem 1.2rem;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .scripts-group ul { list-style: none; padding: 0.5rem 0; }
+
+    .scripts-group li {
+      padding: 0.5rem 1.2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.1rem;
+    }
+
+    .scripts-group li code {
+      font-family: monospace;
+      font-size: 0.85rem;
+      color: var(--accent2);
+    }
+
+    .scripts-group li span {
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    /* ─── ENV ─────────────────────────────────────────── */
+    .env-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .env-card pre {
+      padding: 1.5rem;
+      font-family: monospace;
+      font-size: 0.88rem;
+      line-height: 1.8;
+      overflow-x: auto;
+      color: var(--text);
+    }
+
+    .env-comment { color: var(--muted); }
+    .env-key { color: var(--blue); }
+    .env-val { color: var(--green); }
+
+    /* ─── FOOTER ──────────────────────────────────────── */
+    footer {
+      border-top: 1px solid var(--border);
+      text-align: center;
+      padding: 2.5rem 2rem;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    footer strong { color: var(--accent2); }
+
+    /* ─── DIVIDER ─────────────────────────────────────── */
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border), transparent);
+      margin: 0 auto;
+      max-width: 1100px;
+    }
+
+    /* ─── RESPONSIVE ──────────────────────────────────── */
+    @media (max-width: 640px) {
+      .nav-links { display: none; }
+      section { padding: 3.5rem 1.2rem; }
+      .api-table { display: block; overflow-x: auto; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <a href="#" class="nav-logo">⚡ Colebuilder</a>
+    <ul class="nav-links">
+      <li><a href="#sobre">Sobre</a></li>
+      <li><a href="#fases">Fases</a></li>
+      <li><a href="#stack">Stack</a></li>
+      <li><a href="#banco">Banco</a></li>
+      <li><a href="#api">API</a></li>
+      <li><a href="#scripts">Scripts</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="badge">🔗 Open Source</div>
+    <h1>
+      Construa sua página<br />
+      <span class="gradient-text">link-in-bio</span>
+    </h1>
+    <p>
+      Uma alternativa self-hosted ao Linktree. Personalize seus links,
+      escolha temas, publique com uma URL própria e acompanhe os cliques
+      — tudo em um só lugar.
+    </p>
+    <div class="btn-group">
+      <a href="#fases" class="btn btn-primary">Ver Funcionalidades</a>
+      <a href="https://github.com/inematds/colebuilder" target="_blank" class="btn btn-ghost">GitHub →</a>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- SOBRE -->
+  <section id="sobre">
+    <p class="section-label">O Projeto</p>
+    <h2 class="section-title">O que é o Colebuilder?</h2>
+    <p class="section-sub">
+      Colebuilder é uma aplicação full-stack moderna que permite criar páginas de links personalizadas.
+      Você faz o cadastro com um slug único (ex: <code style="color:var(--accent2)">seusite.com/voce</code>),
+      adiciona seus links, escolhe um tema visual e compartilha sua página com o mundo.
+    </p>
+
+    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
+      <div class="phase-card">
+        <div style="font-size:2rem; margin-bottom:0.8rem;">🎨</div>
+        <h3>Temas Visuais</h3>
+        <p>4 temas distintos: Minimal, Dark, Colorful e Professional — troca instantânea com preview.</p>
+      </div>
+      <div class="phase-card">
+        <div style="font-size:2rem; margin-bottom:0.8rem;">🔗</div>
+        <h3>Gestão de Links</h3>
+        <p>Adicione links, headers e divisores. Reordene tudo com drag-and-drop intuitivo.</p>
+      </div>
+      <div class="phase-card">
+        <div style="font-size:2rem; margin-bottom:0.8rem;">📡</div>
+        <h3>URLs Públicas</h3>
+        <p>Cada perfil tem sua URL própria com SEO, meta tags OG e SSR para compartilhamento perfeito.</p>
+      </div>
+      <div class="phase-card">
+        <div style="font-size:2rem; margin-bottom:0.8rem;">📊</div>
+        <h3>Analytics</h3>
+        <p>Acompanhe cliques por link com gráficos de série temporal e ranking dos links mais acessados.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- FASES -->
+  <section id="fases">
+    <p class="section-label">Implementação</p>
+    <h2 class="section-title">4 Fases de Desenvolvimento</h2>
+    <p class="section-sub">
+      O projeto foi planejado e implementado em fases progressivas, cada uma adicionando novas capacidades.
+    </p>
+
+    <div class="phases">
+      <div class="phase-card">
+        <span class="phase-status status-done">✓ Concluída</span>
+        <p class="phase-num">Fase 1</p>
+        <h3>Editor + Live Preview</h3>
+        <p>Base da aplicação com autenticação e edição em tempo real.</p>
+        <ul>
+          <li>Signup com slug único</li>
+          <li>Login email/senha + Google OAuth</li>
+          <li>Edição de nome, bio, avatar</li>
+          <li>Adicionar / deletar links</li>
+          <li>Drag-and-drop para reordenar</li>
+          <li>Preview ao vivo no editor</li>
+          <li>Layout responsivo (mobile + desktop)</li>
+        </ul>
+      </div>
+
+      <div class="phase-card">
+        <span class="phase-status status-done">✓ Concluída</span>
+        <p class="phase-num">Fase 2</p>
+        <h3>Sistema de Temas</h3>
+        <p>Personalização visual completa com 4 temas distintos.</p>
+        <ul>
+          <li>Tema Minimal — branco, limpo, espaçado</li>
+          <li>Tema Dark — escuro, neon, moderno</li>
+          <li>Tema Colorful — gradientes, vibrante</li>
+          <li>Tema Professional — sóbrio, estruturado</li>
+          <li>Troca instantânea no preview</li>
+          <li>Persistência do tema no banco</li>
+        </ul>
+      </div>
+
+      <div class="phase-card">
+        <span class="phase-status status-done">✓ Concluída</span>
+        <p class="phase-num">Fase 3</p>
+        <h3>URLs Públicas + SEO</h3>
+        <p>Páginas públicas acessíveis por qualquer pessoa na internet.</p>
+        <ul>
+          <li>Rotas dinâmicas <code>/username</code></li>
+          <li>Server-side rendering (SSR)</li>
+          <li>OG meta tags para redes sociais</li>
+          <li>Página 404 amigável</li>
+          <li>Proteção de slugs reservados</li>
+        </ul>
+      </div>
+
+      <div class="phase-card">
+        <span class="phase-status status-planned">⏳ Planejada</span>
+        <p class="phase-num">Fase 4</p>
+        <h3>Click Analytics</h3>
+        <p>Dashboard de analytics com rastreamento de cliques.</p>
+        <ul>
+          <li>Registro de cliques por link</li>
+          <li>Dashboard <code>/analytics</code></li>
+          <li>Gráfico time-series (7d / 30d / 90d)</li>
+          <li>Ranking top links</li>
+          <li>Rate limiting anti-spam</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- STACK -->
+  <section id="stack">
+    <p class="section-label">Tecnologia</p>
+    <h2 class="section-title">Stack Utilizado</h2>
+    <p class="section-sub">
+      Tecnologias modernas escolhidas para performance, type-safety e experiência de desenvolvimento.
+    </p>
+
+    <div class="stack-grid">
+      <div class="stack-item">
+        <div class="stack-icon" style="background:rgba(0,0,0,0.5);">▲</div>
+        <div>
+          <h4>Next.js 15</h4>
+          <p>App Router, SSR, API Routes, Server Components</p>
+        </div>
+      </div>
+      <div class="stack-item">
+        <div class="stack-icon" style="background:rgba(97,218,251,0.15);">⚛</div>
+        <div>
+          <h4>React 19</h4>
+          <p>Última versão com Concurrent Mode e novos hooks</p>
+        </div>
+      </div>
+      <div class="stack-item">
+        <div class="stack-icon" style="background:rgba(49,120,198,0.15);">TS</div>
+        <div>
+          <h4>TypeScript</h4>
+          <p>Strict mode, type-safe em toda a aplicação</p>
+        </div>
+      </div>
+      <div class="stack-item">
+        <div class="stack-icon" style="background:rgba(6,182,212,0.15);">🌊</div>
+        <div>
+          <h4>Tailwind CSS v4</h4>
+          <p>Utility-first CSS com Tailwind v4 via PostCSS</p>
+        </div>
+      </div>
+      <div class="stack-item">
+        <div class="stack-icon" style="background:rgba(0,0,0,0.5);">◎</div>
+        <div>
+          <h4>shadcn/ui</h4>
+          <p>Componentes acessíveis e customizáveis (Radix UI)</p>
+        </div>
+      </div>
+      <div class="stack-item">
+        <div class="stack-icon" style="background:rgba(0,255,128,0.1);">🐘</div>
+        <div>
+          <h4>Neon Postgres</h4>
+          <p>Banco de dados serverless com branching</p>
+        </div>
+      </div>
+      <div class="stack-item">
+        <div class="stack-icon" style="background:rgba(200,100,50,0.15);">💧</div>
+        <div>
+          <h4>Drizzle ORM</h4>
+          <p>Query builder type-safe com migrations</p>
+        </div>
+      </div>
+      <div class="stack-item">
+        <div class="stack-icon" style="background:rgba(0,255,128,0.1);">🔐</div>
+        <div>
+          <h4>Neon Auth</h4>
+          <p>Autenticação gerenciada com Google OAuth</p>
+        </div>
+      </div>
+      <div class="stack-item">
+        <div class="stack-icon" style="background:rgba(124,106,247,0.15);">🧲</div>
+        <div>
+          <h4>dnd-kit</h4>
+          <p>Drag-and-drop acessível e performático</p>
+        </div>
+      </div>
+      <div class="stack-item">
+        <div class="stack-icon" style="background:rgba(96,165,250,0.15);">📈</div>
+        <div>
+          <h4>Recharts</h4>
+          <p>Gráficos SVG para o dashboard de analytics</p>
+        </div>
+      </div>
+      <div class="stack-item">
+        <div class="stack-icon" style="background:rgba(255,50,50,0.15);">🛡️</div>
+        <div>
+          <h4>Zod</h4>
+          <p>Validação de schemas em runtime</p>
+        </div>
+      </div>
+      <div class="stack-item">
+        <div class="stack-icon" style="background:rgba(251,191,36,0.15);">⚡</div>
+        <div>
+          <h4>Vitest</h4>
+          <p>Testes unitários e E2E com coverage</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- BANCO DE DADOS -->
+  <section id="banco">
+    <p class="section-label">Banco de Dados</p>
+    <h2 class="section-title">Estrutura das Tabelas</h2>
+    <p class="section-sub">
+      3 tabelas Postgres gerenciadas com Drizzle ORM, type-safe do schema até a query.
+    </p>
+
+    <div class="db-tables">
+      <div class="db-card">
+        <div class="db-header">
+          <span>👤</span>
+          <h3>profiles</h3>
+        </div>
+        <div class="db-body">
+          <div class="db-field"><span class="field-name">id</span><span class="field-type">UUID PK</span></div>
+          <div class="db-field"><span class="field-name">userId</span><span class="field-type">TEXT UNIQUE</span></div>
+          <div class="db-field"><span class="field-name">slug</span><span class="field-type">TEXT UNIQUE</span></div>
+          <div class="db-field"><span class="field-name">displayName</span><span class="field-type">TEXT</span></div>
+          <div class="db-field"><span class="field-name">bio</span><span class="field-type">TEXT</span></div>
+          <div class="db-field"><span class="field-name">avatarUrl</span><span class="field-type">TEXT</span></div>
+          <div class="db-field"><span class="field-name">theme</span><span class="field-type">TEXT</span></div>
+          <div class="db-field"><span class="field-name">createdAt</span><span class="field-type">TIMESTAMPTZ</span></div>
+          <div class="db-field"><span class="field-name">updatedAt</span><span class="field-type">TIMESTAMPTZ</span></div>
+        </div>
+      </div>
+
+      <div class="db-card">
+        <div class="db-header">
+          <span>🔗</span>
+          <h3>link_items</h3>
+        </div>
+        <div class="db-body">
+          <div class="db-field"><span class="field-name">id</span><span class="field-type">UUID PK</span></div>
+          <div class="db-field"><span class="field-name">profileId</span><span class="field-type">UUID FK</span></div>
+          <div class="db-field"><span class="field-name">type</span><span class="field-type">link | header | divider</span></div>
+          <div class="db-field"><span class="field-name">title</span><span class="field-type">TEXT</span></div>
+          <div class="db-field"><span class="field-name">url</span><span class="field-type">TEXT</span></div>
+          <div class="db-field"><span class="field-name">sortOrder</span><span class="field-type">INTEGER</span></div>
+          <div class="db-field"><span class="field-name">createdAt</span><span class="field-type">TIMESTAMPTZ</span></div>
+          <div class="db-field"><span class="field-name">updatedAt</span><span class="field-type">TIMESTAMPTZ</span></div>
+        </div>
+      </div>
+
+      <div class="db-card">
+        <div class="db-header">
+          <span>📊</span>
+          <h3>click_events</h3>
+        </div>
+        <div class="db-body">
+          <div class="db-field"><span class="field-name">id</span><span class="field-type">UUID PK</span></div>
+          <div class="db-field"><span class="field-name">linkItemId</span><span class="field-type">UUID FK</span></div>
+          <div class="db-field"><span class="field-name">clickedAt</span><span class="field-type">TIMESTAMPTZ</span></div>
+          <div style="padding: 0.8rem 0; color: var(--muted); font-size: 0.82rem;">
+            Índices em <code>linkItemId</code> e <code>clickedAt</code> para queries rápidas.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- API -->
+  <section id="api">
+    <p class="section-label">Backend</p>
+    <h2 class="section-title">Endpoints da API</h2>
+    <p class="section-sub">
+      API RESTful construída com Next.js API Routes, com autenticação, validação Zod e rate limiting.
+    </p>
+
+    <div class="db-card">
+      <table class="api-table">
+        <thead>
+          <tr>
+            <th>Método</th>
+            <th>Endpoint</th>
+            <th>Auth</th>
+            <th>Descrição</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="method method-get">GET</span></td>
+            <td class="endpoint">/api/profile</td>
+            <td><span class="auth-badge auth-yes">Sim</span></td>
+            <td>Retorna perfil + links do usuário autenticado</td>
+          </tr>
+          <tr>
+            <td><span class="method method-put">PUT</span></td>
+            <td class="endpoint">/api/profile</td>
+            <td><span class="auth-badge auth-yes">Sim</span></td>
+            <td>Atualiza nome, bio, avatar, tema</td>
+          </tr>
+          <tr>
+            <td><span class="method method-post">POST</span></td>
+            <td class="endpoint">/api/links</td>
+            <td><span class="auth-badge auth-yes">Sim</span></td>
+            <td>Adiciona link, header ou divider</td>
+          </tr>
+          <tr>
+            <td><span class="method method-delete">DELETE</span></td>
+            <td class="endpoint">/api/links/[id]</td>
+            <td><span class="auth-badge auth-yes">Sim</span></td>
+            <td>Remove um item de link pelo ID</td>
+          </tr>
+          <tr>
+            <td><span class="method method-put">PUT</span></td>
+            <td class="endpoint">/api/links/reorder</td>
+            <td><span class="auth-badge auth-yes">Sim</span></td>
+            <td>Salva nova ordem após drag-and-drop</td>
+          </tr>
+          <tr>
+            <td><span class="method method-post">POST</span></td>
+            <td class="endpoint">/api/click</td>
+            <td><span class="auth-badge auth-no">Não</span></td>
+            <td>Registra clique em link (rate limited)</td>
+          </tr>
+          <tr>
+            <td><span class="method method-get">GET</span></td>
+            <td class="endpoint">/api/slug/check</td>
+            <td><span class="auth-badge auth-no">Não</span></td>
+            <td>Verifica disponibilidade de slug</td>
+          </tr>
+          <tr>
+            <td><span class="method method-get">GET</span></td>
+            <td class="endpoint">/api/auth/[...path]</td>
+            <td><span class="auth-badge auth-no">—</span></td>
+            <td>Handlers do Neon Auth (login, signup, OAuth)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- SCRIPTS -->
+  <section id="scripts">
+    <p class="section-label">Comandos</p>
+    <h2 class="section-title">Scripts Disponíveis</h2>
+    <p class="section-sub">
+      Todos os comandos para desenvolvimento, testes e gerenciamento do banco de dados.
+    </p>
+
+    <div class="scripts-grid">
+      <div class="scripts-group">
+        <div class="scripts-group-header">🚀 Desenvolvimento</div>
+        <ul>
+          <li><code>npm run dev</code><span>Inicia servidor de desenvolvimento</span></li>
+          <li><code>npm run build</code><span>Gera build de produção</span></li>
+          <li><code>npm run start</code><span>Inicia servidor de produção</span></li>
+        </ul>
+      </div>
+
+      <div class="scripts-group">
+        <div class="scripts-group-header">🧹 Qualidade de Código</div>
+        <ul>
+          <li><code>npm run lint</code><span>Análise com Biome</span></li>
+          <li><code>npm run lint:fix</code><span>Corrige erros automaticamente</span></li>
+          <li><code>npm run format</code><span>Formata todo o código</span></li>
+        </ul>
+      </div>
+
+      <div class="scripts-group">
+        <div class="scripts-group-header">🧪 Testes</div>
+        <ul>
+          <li><code>npm run test</code><span>Vitest em modo watch</span></li>
+          <li><code>npm run test:run</code><span>Executa testes uma vez</span></li>
+          <li><code>npm run test:coverage</code><span>Gera relatório de coverage</span></li>
+          <li><code>npm run test:e2e</code><span>Testes E2E com agent-browser</span></li>
+        </ul>
+      </div>
+
+      <div class="scripts-group">
+        <div class="scripts-group-header">🗄️ Banco de Dados</div>
+        <ul>
+          <li><code>npm run db:generate</code><span>Gera arquivos de migration</span></li>
+          <li><code>npm run db:migrate</code><span>Executa migrations pendentes</span></li>
+          <li><code>npm run db:push</code><span>Sincroniza schema com banco</span></li>
+          <li><code>npm run db:studio</code><span>Abre Drizzle Studio (UI)</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- ENV -->
+    <div style="margin-top: 3rem;">
+      <h3 style="font-size:1.2rem; font-weight:700; margin-bottom:1rem;">Variáveis de Ambiente</h3>
+      <div class="env-card">
+        <pre><span class="env-comment"># Neon Postgres — URL de conexão</span>
+<span class="env-key">DATABASE_URL</span>=<span class="env-val">postgresql://user:pass@ep-xxx.us-east-2.aws.neon.tech/dbname?sslmode=require</span>
+
+<span class="env-comment"># Neon Auth — URL base da instância de autenticação</span>
+<span class="env-key">NEON_AUTH_BASE_URL</span>=<span class="env-val">https://ep-xxx.neonauth.us-east-1.aws.neon.tech/neondb/auth</span>
+
+<span class="env-comment"># Secret para assinatura de cookies (gere com: openssl rand -base64 32)</span>
+<span class="env-key">NEON_AUTH_COOKIE_SECRET</span>=<span class="env-val">seu-secret-aqui</span>
+
+<span class="env-comment"># Google OAuth — apenas necessário em produção</span>
+<span class="env-key">GOOGLE_CLIENT_ID</span>=<span class="env-val">seu-client-id</span>
+<span class="env-key">GOOGLE_CLIENT_SECRET</span>=<span class="env-val">seu-client-secret</span></pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>
+      <strong>Colebuilder</strong> — Link-in-Bio Page Builder ·
+      Construído com Next.js 15, React 19, Neon Postgres ·
+      <a href="https://github.com/inematds/colebuilder" target="_blank" style="color: var(--accent2); text-decoration: none;">Ver no GitHub →</a>
+    </p>
+  </footer>
+
+</body>
+</html>

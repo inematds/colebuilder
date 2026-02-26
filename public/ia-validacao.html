@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Self-Healing AI — Validacao Autonoma com Agentes de IA</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #080b10;
+      --bg2: #0d1117;
+      --bg3: #161b22;
+      --border: #21262d;
+      --text: #e6edf3;
+      --muted: #7d8590;
+      --accent: #58a6ff;
+      --accent2: #79c0ff;
+      --green: #3fb950;
+      --green2: #56d364;
+      --yellow: #d29922;
+      --yellow2: #e3b341;
+      --orange: #f0883e;
+      --red: #f85149;
+      --purple: #bc8cff;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+    }
+
+    /* NAV */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(8,11,16,0.9);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 58px;
+    }
+
+    .nav-logo {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--accent2);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .nav-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--green2);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.8); }
+    }
+
+    .nav-links { display: flex; gap: 1.5rem; list-style: none; }
+    .nav-links a { color: var(--muted); text-decoration: none; font-size: 0.88rem; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--text); }
+
+    /* HERO */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 4rem 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(88,166,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(88,166,255,0.04) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+    }
+
+    .hero::after {
+      content: '';
+      position: absolute;
+      width: 800px; height: 500px;
+      background: radial-gradient(ellipse, rgba(88,166,255,0.08) 0%, transparent 70%);
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: rgba(63,185,80,0.1);
+      border: 1px solid rgba(63,185,80,0.3);
+      color: var(--green2);
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 0.3rem 1rem;
+      border-radius: 999px;
+      margin-bottom: 1.5rem;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero h1 {
+      font-size: clamp(2.2rem, 5.5vw, 4.2rem);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -1.5px;
+      margin-bottom: 1.2rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .blue-text { color: var(--accent2); }
+
+    .hero p {
+      font-size: clamp(1rem, 2vw, 1.2rem);
+      color: var(--muted);
+      max-width: 580px;
+      margin-bottom: 2.5rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .terminal-badge {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.7rem 1.4rem;
+      font-family: monospace;
+      font-size: 0.95rem;
+      color: var(--green2);
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .terminal-badge::before {
+      content: '$';
+      color: var(--muted);
+    }
+
+    /* SECTION */
+    section { padding: 5rem 2rem; max-width: 1100px; margin: 0 auto; }
+
+    .section-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+
+    .section-title {
+      font-size: clamp(1.8rem, 3vw, 2.5rem);
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      margin-bottom: 1rem;
+    }
+
+    .section-sub {
+      color: var(--muted);
+      font-size: 1.05rem;
+      max-width: 640px;
+      margin-bottom: 3rem;
+      line-height: 1.8;
+    }
+
+    /* PROBLEMA */
+    .problem-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .problem-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--red);
+      border-radius: 12px;
+      padding: 1.4rem;
+    }
+
+    .problem-card h4 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      color: var(--text);
+    }
+
+    .problem-card p { font-size: 0.88rem; color: var(--muted); }
+
+    /* WORKFLOW */
+    .workflow {
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+    }
+
+    .step {
+      display: grid;
+      grid-template-columns: 52px 1fr;
+      gap: 1.2rem;
+      align-items: flex-start;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.6rem;
+      transition: border-color 0.2s;
+    }
+
+    .step:hover { border-color: var(--accent); }
+
+    .step-num {
+      width: 52px; height: 52px;
+      border-radius: 12px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .step-content h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: 0.4rem;
+    }
+
+    .step-content p { color: var(--muted); font-size: 0.9rem; margin-bottom: 0.8rem; }
+
+    .step-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+
+    .step-tag {
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.2rem 0.7rem;
+      border-radius: 6px;
+      font-family: monospace;
+    }
+
+    .tag-blue { background: rgba(88,166,255,0.1); color: var(--accent2); }
+    .tag-green { background: rgba(63,185,80,0.1); color: var(--green2); }
+    .tag-purple { background: rgba(188,140,255,0.1); color: var(--purple); }
+    .tag-yellow { background: rgba(227,179,65,0.1); color: var(--yellow2); }
+    .tag-orange { background: rgba(240,136,62,0.1); color: var(--orange); }
+
+    /* LOOP */
+    .loop-box {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .loop-header {
+      background: var(--bg3);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .loop-header h3 { font-size: 1rem; font-weight: 700; }
+
+    .loop-body { padding: 1.5rem; }
+
+    .loop-flow {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0;
+      align-items: center;
+    }
+
+    .loop-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .loop-box-inner {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.7rem 1rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      text-align: center;
+      min-width: 120px;
+    }
+
+    .loop-arrow {
+      font-size: 1.2rem;
+      color: var(--muted);
+      padding: 0 0.3rem;
+      display: flex;
+      align-items: center;
+    }
+
+    .loop-sub { font-size: 0.72rem; color: var(--muted); text-align: center; }
+
+    .loop-error {
+      margin-top: 1.5rem;
+      background: rgba(248,81,73,0.07);
+      border: 1px solid rgba(248,81,73,0.2);
+      border-radius: 12px;
+      padding: 1.2rem;
+    }
+
+    .loop-error h4 { font-size: 0.9rem; font-weight: 700; color: var(--red); margin-bottom: 0.5rem; }
+    .loop-error p { font-size: 0.85rem; color: var(--muted); }
+
+    /* PIV */
+    .piv {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .piv-item {
+      background: var(--bg2);
+      padding: 2rem;
+      text-align: center;
+      position: relative;
+    }
+
+    .piv-letter {
+      font-size: 3rem;
+      font-weight: 900;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(135deg, var(--accent), var(--purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .piv-item h3 { font-size: 1rem; font-weight: 700; margin-bottom: 0.4rem; }
+    .piv-item p { font-size: 0.85rem; color: var(--muted); }
+
+    /* BENEFICIOS / LIMITACOES */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.2rem;
+    }
+
+    .list-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.6rem;
+    }
+
+    .list-card h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .list-card ul { list-style: none; display: flex; flex-direction: column; gap: 0.6rem; }
+
+    .list-card ul li {
+      font-size: 0.88rem;
+      color: var(--muted);
+      display: flex;
+      align-items: flex-start;
+      gap: 0.6rem;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .list-card ul li:last-child { border-bottom: none; }
+
+    .li-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      margin-top: 0.55rem;
+      flex-shrink: 0;
+    }
+
+    .dot-green { background: var(--green2); }
+    .dot-red { background: var(--red); }
+
+    /* TOOLS */
+    .tools-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+    }
+
+    .tool-chip {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.6rem 1.2rem;
+      font-size: 0.88rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: border-color 0.2s;
+    }
+
+    .tool-chip:hover { border-color: var(--accent); }
+
+    /* QUOTE */
+    .quote-box {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--accent);
+      border-radius: 0 16px 16px 0;
+      padding: 2rem 2rem 2rem 2.5rem;
+      margin: 3rem 0;
+    }
+
+    .quote-box blockquote {
+      font-size: 1.15rem;
+      font-style: italic;
+      color: var(--text);
+      line-height: 1.8;
+      margin-bottom: 1rem;
+    }
+
+    .quote-box cite { font-size: 0.85rem; color: var(--muted); }
+
+    /* DIVIDER */
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border), transparent);
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    /* FOOTER */
+    footer {
+      border-top: 1px solid var(--border);
+      text-align: center;
+      padding: 2.5rem 2rem;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    footer strong { color: var(--accent2); }
+
+    @media (max-width: 700px) {
+      .nav-links { display: none; }
+      .two-col { grid-template-columns: 1fr; }
+      .piv { grid-template-columns: 1fr; }
+      section { padding: 3rem 1.2rem; }
+      .loop-flow { gap: 0.3rem; }
+      .loop-box-inner { min-width: 90px; font-size: 0.75rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <a href="#" class="nav-logo">
+      <div class="nav-dot"></div>
+      Self-Healing AI
+    </a>
+    <ul class="nav-links">
+      <li><a href="#problema">Problema</a></li>
+      <li><a href="#workflow">Workflow</a></li>
+      <li><a href="#loop">Loop de Teste</a></li>
+      <li><a href="#piv">PIV Loop</a></li>
+      <li><a href="#resultado">Resultado</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-grid"></div>
+    <div class="tag">Inteligencia Artificial Aplicada</div>
+    <h1>
+      Agentes de IA que<br />
+      <span class="blue-text">se corrigem sozinhos</span>
+    </h1>
+    <p>
+      Como transformar um agente de codigo comum em um sistema de auto-validacao
+      capaz de testar, detectar erros e se corrigir — como um desenvolvedor real.
+    </p>
+    <div class="terminal-badge">/e2e test</div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- PROBLEMA -->
+  <section id="problema">
+    <p class="section-label">O Desafio</p>
+    <h2 class="section-title">Por que a validacao manual nao funciona mais</h2>
+    <p class="section-sub">
+      Agentes de IA geram codigo em uma velocidade que torna a revisao manual humanamente
+      impossivel. Centenas de linhas em segundos. Mas a responsabilidade pelo codigo
+      continua sendo sua.
+    </p>
+
+    <div class="problem-grid">
+      <div class="problem-card">
+        <h4>Velocidade desproporcional</h4>
+        <p>A IA gera codigo rapido demais para o desenvolvedor acompanhar com revisao manual linha a linha.</p>
+      </div>
+      <div class="problem-card">
+        <h4>Responsabilidade permanece</h4>
+        <p>O codigo gerado por IA ainda e seu. Bugs, falhas de logica e erros de banco sao sua responsabilidade.</p>
+      </div>
+      <div class="problem-card">
+        <h4>Carga mental alta</h4>
+        <p>Revisar centenas de linhas geradas automaticamente e mentalmente exaustivo e insustentavel a longo prazo.</p>
+      </div>
+      <div class="problem-card">
+        <h4>IA nao valida o proprio trabalho</h4>
+        <p>Por padrao, agentes de codigo nao testam o que geram. Eles entregam e assumem que esta correto.</p>
+      </div>
+    </div>
+
+    <div class="quote-box">
+      <blockquote>
+        "Assistentes de codigo com IA nao validam bem o proprio trabalho sozinhos.
+        Precisamos de um sistema que teste a aplicacao como um usuario real, detecte
+        erros de logica, valide o banco de dados e se autocorrija automaticamente."
+      </blockquote>
+      <cite>Conceito central do Self-Healing AI Workflow</cite>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- WORKFLOW -->
+  <section id="workflow">
+    <p class="section-label">A Solucao</p>
+    <h2 class="section-title">Workflow de Auto-Validacao em 6 Etapas</h2>
+    <p class="section-sub">
+      Um unico comando <code style="color:var(--accent2);">/e2e test</code> que
+      transforma o agente em um sistema estruturado de validacao completa.
+      Funciona em qualquer codebase com frontend.
+    </p>
+
+    <div class="workflow">
+
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <h3>Checagem de Pre-Requisitos</h3>
+          <p>Antes de comecar, o sistema verifica se o ambiente esta pronto para execucao.</p>
+          <div class="step-tags">
+            <span class="step-tag tag-blue">Frontend presente</span>
+            <span class="step-tag tag-green">Browser CLI disponivel</span>
+            <span class="step-tag tag-yellow">WSL (se Windows)</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <h3>Fase de Pesquisa — 3 Subagentes em Paralelo</h3>
+          <p>
+            Tres subagentes rodam simultaneamente para construir um entendimento completo
+            da aplicacao antes de qualquer teste comecinar.
+          </p>
+          <div class="step-tags">
+            <span class="step-tag tag-blue">Estrutura do app + jornadas</span>
+            <span class="step-tag tag-purple">Schema do banco de dados</span>
+            <span class="step-tag tag-orange">Code review — bugs e logica</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <h3>Inicializacao do App</h3>
+          <p>O servidor de desenvolvimento e iniciado automaticamente, erros de startup sao corrigidos, e o browser e aberto com screenshot inicial.</p>
+          <div class="step-tags">
+            <span class="step-tag tag-green">Dev server up</span>
+            <span class="step-tag tag-blue">Browser automation</span>
+            <span class="step-tag tag-yellow">Screenshot inicial</span>
+            <span class="step-tag tag-orange">Auto-fix de erros</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-content">
+          <h3>Criacao da Lista de Jornadas</h3>
+          <p>O agente gera automaticamente todas as jornadas reais de usuario que precisam ser testadas na aplicacao.</p>
+          <div class="step-tags">
+            <span class="step-tag tag-blue">Criar conta</span>
+            <span class="step-tag tag-blue">Fazer login</span>
+            <span class="step-tag tag-purple">Editar perfil</span>
+            <span class="step-tag tag-green">Criar registros</span>
+            <span class="step-tag tag-yellow">Atualizar dados</span>
+            <span class="step-tag tag-orange">Deletar dados</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">5</div>
+        <div class="step-content">
+          <h3>Loop de Teste Sistematico</h3>
+          <p>Para cada jornada: navega via browser, interage com a UI, tira screenshots e valida diretamente no banco de dados. Erros bloqueantes sao corrigidos em loop ate passar.</p>
+          <div class="step-tags">
+            <span class="step-tag tag-purple">Browser automation</span>
+            <span class="step-tag tag-blue">Query no banco</span>
+            <span class="step-tag tag-green">Auto-correcao</span>
+            <span class="step-tag tag-yellow">Reexecucao</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">6</div>
+        <div class="step-content">
+          <h3>Testes Responsivos</h3>
+          <p>Verificacao basica de layout em tres tamanhos de tela para garantir que a aplicacao funciona em qualquer dispositivo.</p>
+          <div class="step-tags">
+            <span class="step-tag tag-blue">Mobile</span>
+            <span class="step-tag tag-green">Tablet</span>
+            <span class="step-tag tag-purple">Desktop</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- LOOP -->
+  <section id="loop">
+    <p class="section-label">Nucleo do Sistema</p>
+    <h2 class="section-title">O Loop de Auto-Correcao</h2>
+    <p class="section-sub">
+      O coracao do workflow: um loop que so avanca quando a jornada esta completamente
+      funcional — ou quando decide que o problema precisa de revisao humana.
+    </p>
+
+    <div class="loop-box">
+      <div class="loop-header">
+        <h3>For Loop Interno — Por Jornada de Usuario</h3>
+        <span class="step-tag tag-green">Bloqueante: auto-corrige</span>
+      </div>
+      <div class="loop-body">
+        <div class="loop-flow">
+          <div class="loop-item">
+            <div class="loop-box-inner" style="border-color: var(--accent); color: var(--accent2);">Navegar</div>
+            <div class="loop-sub">Browser automation</div>
+          </div>
+          <div class="loop-arrow">→</div>
+          <div class="loop-item">
+            <div class="loop-box-inner">Interagir com UI</div>
+            <div class="loop-sub">Cliques, forms</div>
+          </div>
+          <div class="loop-arrow">→</div>
+          <div class="loop-item">
+            <div class="loop-box-inner">Screenshot</div>
+            <div class="loop-sub">Evidencia visual</div>
+          </div>
+          <div class="loop-arrow">→</div>
+          <div class="loop-item">
+            <div class="loop-box-inner">Query no Banco</div>
+            <div class="loop-sub">Validacao real</div>
+          </div>
+          <div class="loop-arrow">→</div>
+          <div class="loop-item">
+            <div class="loop-box-inner" style="border-color: var(--green2); color: var(--green2);">Passou?</div>
+            <div class="loop-sub">Sim → proxima</div>
+          </div>
+        </div>
+
+        <div class="loop-error">
+          <h4>Se houver erro bloqueante (Blocker):</h4>
+          <p>
+            O agente corrige o codigo → reexecuta o teste → tira novos screenshots → valida novamente.
+            Esse ciclo continua ate a jornada funcionar completamente.
+            Problemas medios e pequenos sao registrados no relatorio para revisao humana.
+          </p>
+        </div>
+
+        <div style="margin-top: 1.5rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.8rem;">
+          <div style="background: rgba(248,81,73,0.07); border: 1px solid rgba(248,81,73,0.2); border-radius: 10px; padding: 1rem; text-align: center;">
+            <div style="font-size: 0.75rem; font-weight: 700; color: var(--red); margin-bottom: 0.3rem; text-transform: uppercase;">Blocker</div>
+            <div style="font-size: 0.82rem; color: var(--muted);">Correcao automatica imediata</div>
+          </div>
+          <div style="background: rgba(227,179,65,0.07); border: 1px solid rgba(227,179,65,0.2); border-radius: 10px; padding: 1rem; text-align: center;">
+            <div style="font-size: 0.75rem; font-weight: 700; color: var(--yellow2); margin-bottom: 0.3rem; text-transform: uppercase;">Medio</div>
+            <div style="font-size: 0.82rem; color: var(--muted);">Registrado para revisao humana</div>
+          </div>
+          <div style="background: rgba(88,166,255,0.07); border: 1px solid rgba(88,166,255,0.2); border-radius: 10px; padding: 1rem; text-align: center;">
+            <div style="font-size: 0.75rem; font-weight: 700; color: var(--accent); margin-bottom: 0.3rem; text-transform: uppercase;">Pequeno</div>
+            <div style="font-size: 0.82rem; color: var(--muted);">Documentado no relatorio</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- PIV -->
+  <section id="piv">
+    <p class="section-label">Processo de Desenvolvimento</p>
+    <h2 class="section-title">O Loop PIV</h2>
+    <p class="section-sub">
+      Integrar o E2E test ao fluxo de desenvolvimento cria um ciclo de qualidade automatica.
+      Cada feature ja nasce com regressao automatica.
+    </p>
+
+    <div class="piv">
+      <div class="piv-item">
+        <div class="piv-letter">P</div>
+        <h3>Plan</h3>
+        <p>Planejar a feature. Incluir no plano: "Usar E2E test skill para validacao apos implementacao."</p>
+      </div>
+      <div class="piv-item">
+        <div class="piv-letter">I</div>
+        <h3>Implement</h3>
+        <p>Implementar o codigo com o agente de IA normalmente, sem se preocupar com testes manuais.</p>
+      </div>
+      <div class="piv-item">
+        <div class="piv-letter">V</div>
+        <h3>Validate</h3>
+        <p>Executar <code style="color:var(--accent2);">/e2e test</code>. O agente testa, corrige blockers e gera relatorio completo.</p>
+      </div>
+    </div>
+
+    <div style="margin-top: 1.5rem; background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 1.2rem 1.5rem; font-size: 0.9rem; color: var(--muted);">
+      O fluxo PIV garante que cada feature gerada por IA passe por validacao real antes de ser considerada pronta — sem depender de revisao manual exaustiva.
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- BANCO DE DADOS -->
+  <section>
+    <p class="section-label">Validacao Profunda</p>
+    <h2 class="section-title">Validacao de Banco de Dados</h2>
+    <p class="section-sub">
+      O agente nao se limita a testar a UI. Ele executa queries diretamente no banco
+      para confirmar que os dados foram persistidos corretamente.
+    </p>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.2rem;">
+      <div class="step" style="display: flex; flex-direction: column; gap: 0.8rem;">
+        <div style="font-size: 1.5rem;">🔍</div>
+        <h3 style="font-size: 1rem; font-weight: 700;">Queries Diretas</h3>
+        <p style="font-size: 0.88rem; color: var(--muted);">Executa SELECT no banco para confirmar criacao, atualizacao e delecao de registros — nao apenas pelo que a UI mostra.</p>
+      </div>
+      <div class="step" style="display: flex; flex-direction: column; gap: 0.8rem;">
+        <div style="font-size: 1.5rem;">🌿</div>
+        <h3 style="font-size: 1rem; font-weight: 700;">Banco Isolado</h3>
+        <p style="font-size: 0.88rem; color: var(--muted);">Use um branch de banco de dados separado (ex: Neon branching) para nao contaminar o ambiente principal com dados de teste.</p>
+      </div>
+      <div class="step" style="display: flex; flex-direction: column; gap: 0.8rem;">
+        <div style="font-size: 1.5rem;">🐛</div>
+        <h3 style="font-size: 1rem; font-weight: 700;">Inconsistencias Ocultas</h3>
+        <p style="font-size: 0.88rem; color: var(--muted);">Detecta bugs que nao aparecem na UI — dados que parecem salvos mas nao foram, ou registros corrompidos silenciosamente.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- RESULTADO -->
+  <section id="resultado">
+    <p class="section-label">Saida do Processo</p>
+    <h2 class="section-title">Relatorio Final Estruturado</h2>
+    <p class="section-sub">
+      Sempre no mesmo formato, o relatorio documenta tudo que aconteceu durante o ciclo de validacao.
+    </p>
+
+    <div style="background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; margin-bottom: 3rem;">
+      <div style="background: var(--bg3); border-bottom: 1px solid var(--border); padding: 1rem 1.5rem; font-size: 0.85rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 1px;">
+        Estrutura do Relatorio
+      </div>
+      <div style="padding: 1.5rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+        <div style="padding: 1rem; background: var(--bg3); border-radius: 10px; border: 1px solid var(--border);">
+          <div style="font-size: 0.78rem; font-weight: 700; color: var(--green2); margin-bottom: 0.4rem; text-transform: uppercase;">Correcoes</div>
+          <p style="font-size: 0.85rem; color: var(--muted);">O que foi corrigido automaticamente pelo agente</p>
+        </div>
+        <div style="padding: 1rem; background: var(--bg3); border-radius: 10px; border: 1px solid var(--border);">
+          <div style="font-size: 0.78rem; font-weight: 700; color: var(--yellow2); margin-bottom: 0.4rem; text-transform: uppercase;">Pendencias</div>
+          <p style="font-size: 0.85rem; color: var(--muted);">Problemas que precisam de revisao humana</p>
+        </div>
+        <div style="padding: 1rem; background: var(--bg3); border-radius: 10px; border: 1px solid var(--border);">
+          <div style="font-size: 0.78rem; font-weight: 700; color: var(--blue); margin-bottom: 0.4rem; text-transform: uppercase;">Screenshots</div>
+          <p style="font-size: 0.85rem; color: var(--muted);">Evidencias visuais de cada jornada testada</p>
+        </div>
+        <div style="padding: 1rem; background: var(--bg3); border-radius: 10px; border: 1px solid var(--border);">
+          <div style="font-size: 0.78rem; font-weight: 700; color: var(--purple); margin-bottom: 0.4rem; text-transform: uppercase;">Jornadas</div>
+          <p style="font-size: 0.85rem; color: var(--muted);">Status de cada jornada de usuario testada</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="list-card">
+        <h3><span style="color: var(--green2);">+</span> Beneficios</h3>
+        <ul>
+          <li><div class="li-dot dot-green"></div> Reduz carga mental do desenvolvedor</li>
+          <li><div class="li-dot dot-green"></div> Automatiza validacao end-to-end completa</li>
+          <li><div class="li-dot dot-green"></div> Detecta bugs logicos que escapam da UI</li>
+          <li><div class="li-dot dot-green"></div> Verifica banco de dados diretamente</li>
+          <li><div class="li-dot dot-green"></div> Gera documentacao e evidencias automaticas</li>
+          <li><div class="li-dot dot-green"></div> Cria ciclo de auto-correcao continuo</li>
+          <li><div class="li-dot dot-green"></div> Economiza tokens no longo prazo (menos retrabalho)</div></li>
+          <li><div class="li-dot dot-green"></div> Funciona em qualquer app com frontend</li>
+        </ul>
+      </div>
+
+      <div class="list-card">
+        <h3><span style="color: var(--red);">−</span> Limitacoes</h3>
+        <ul>
+          <li><div class="li-dot dot-red"></div> Requer frontend — nao funciona em APIs puras</li>
+          <li><div class="li-dot dot-red"></div> Processo pesado em tokens e tempo</li>
+          <li><div class="li-dot dot-red"></div> Nao foi projetado para velocidade</li>
+          <li><div class="li-dot dot-red"></div> Nao resolve todos os problemas sozinho</li>
+          <li><div class="li-dot dot-red"></div> Decisoes finais continuam sendo humanas</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- FERRAMENTAS -->
+  <section>
+    <p class="section-label">Ecossistema</p>
+    <h2 class="section-title">Ferramentas Utilizadas</h2>
+    <p class="section-sub">Stack de ferramentas que viabilizam o workflow de auto-validacao.</p>
+
+    <div class="tools-grid">
+      <div class="tool-chip" style="border-color: rgba(88,166,255,0.3);">
+        <span style="color: var(--accent2);">◆</span>
+        Claude Code Skill
+      </div>
+      <div class="tool-chip" style="border-color: rgba(63,185,80,0.3);">
+        <span style="color: var(--green2);">◆</span>
+        Vercel Agent Browser CLI
+      </div>
+      <div class="tool-chip" style="border-color: rgba(188,140,255,0.3);">
+        <span style="color: var(--purple);">◆</span>
+        PostgreSQL / Neon
+      </div>
+      <div class="tool-chip" style="border-color: rgba(240,136,62,0.3);">
+        <span style="color: var(--orange);">◆</span>
+        Screenshots Automaticos
+      </div>
+      <div class="tool-chip" style="border-color: rgba(227,179,65,0.3);">
+        <span style="color: var(--yellow2);">◆</span>
+        Bright Data (web scraping)
+      </div>
+    </div>
+  </section>
+
+  <!-- CONCLUSAO -->
+  <section>
+    <div class="quote-box">
+      <blockquote>
+        "Delegar o maximo possivel da validacao para a IA, mantendo o controle humano
+        sobre as decisoes finais. Esse e o conceito central: nao eliminar o humano do
+        processo, mas eliminar o trabalho manual repetitivo e exaustivo de validacao."
+      </blockquote>
+      <cite>Principio do Self-Healing AI Workflow</cite>
+    </div>
+
+    <div style="text-align: center; padding: 2rem 0;">
+      <p class="section-label" style="margin-bottom: 1rem;">Em resumo</p>
+      <h2 class="section-title" style="margin-bottom: 1rem;">
+        Implementar → Testar → Corrigir → Relatar → Iterar
+      </h2>
+      <p style="color: var(--muted); font-size: 1.05rem; max-width: 600px; margin: 0 auto;">
+        Um fluxo pratico para tornar agentes de IA mais confiaveis em projetos reais,
+        criando sistemas quase autonomos de validacao de codigo.
+      </p>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>
+      <strong>Self-Healing AI Workflow</strong> — Validacao Autonoma com Agentes de IA ·
+      Baseado no conceito de auto-correcao com Claude Code + E2E Testing
+    </p>
+  </footer>
+
+</body>
+</html>
